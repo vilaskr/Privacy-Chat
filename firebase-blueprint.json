@@ -1,0 +1,70 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and public key for E2EE",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string" },
+        "email": { "type": "string" },
+        "publicKey": { "type": "string", "description": "Stringified JWK of ECDH public key" }
+      },
+      "required": ["username", "email", "publicKey"]
+    },
+    "Room": {
+      "title": "Room",
+      "description": "A chat room or direct chat",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "creatorId": { "type": "string" },
+        "isDirect": { "type": "boolean" },
+        "members": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "required": ["name", "creatorId", "isDirect", "members"]
+    },
+    "RoomKey": {
+      "title": "RoomKey",
+      "description": "Encrypted AES-GCM key for a specific user in a room",
+      "type": "object",
+      "properties": {
+        "encryptedKey": { "type": "string", "description": "Base64 encoded encrypted AES key" },
+        "iv": { "type": "string", "description": "Base64 encoded IV used for encrypting the key" }
+      },
+      "required": ["encryptedKey", "iv"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "An encrypted chat message",
+      "type": "object",
+      "properties": {
+        "senderId": { "type": "string" },
+        "ciphertext": { "type": "string", "description": "Base64 encoded encrypted message" },
+        "iv": { "type": "string", "description": "Base64 encoded IV used for encrypting the message" },
+        "timestamp": { "type": "number", "description": "Unix timestamp" }
+      },
+      "required": ["senderId", "ciphertext", "iv", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profiles"
+    },
+    "/rooms/{roomId}": {
+      "schema": { "$ref": "#/entities/Room" },
+      "description": "Chat rooms"
+    },
+    "/rooms/{roomId}/keys/{userId}": {
+      "schema": { "$ref": "#/entities/RoomKey" },
+      "description": "Encrypted room keys for each member"
+    },
+    "/rooms/{roomId}/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/Message" },
+      "description": "Encrypted messages in a room"
+    }
+  }
+}
